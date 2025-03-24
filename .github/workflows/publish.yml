@@ -39,7 +39,7 @@ jobs:
         run: ./gradlew assembleRelease # Or assembleDebug for debug APKs
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-release.apk
           path: app/build/outputs/apk/release/app-release-unsigned.apk # Or app/build/outputs/apk/debug/app-debug.apk
