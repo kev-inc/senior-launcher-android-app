@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.toBitmap
+import com.example.seniorlauncher.ui.theme.Typography
 
 data class AppInfo (
     val appName: String,
@@ -80,6 +81,8 @@ class MainActivity : ComponentActivity() {
             appList.add(appInfo)
         }
 
+        appList.add(AppInfo("App Settings", "", "SettingsActivity", null))
+
         this.appList = appList
     }
 }
@@ -91,6 +94,11 @@ fun launchSettings(context: Context) {
 }
 
 fun launchApp(context: Context, appInfo: AppInfo) {
+    if (appInfo.className == "SettingsActivity") {
+        val settingsIntent = Intent(context, SettingsActivity::class.java)
+        context.startActivity(settingsIntent)
+        return
+    }
     val launchIntent = Intent(Intent.ACTION_MAIN)
     launchIntent.addCategory(Intent.CATEGORY_LAUNCHER)
     launchIntent.component = ComponentName(appInfo.packageName, appInfo.className)
@@ -108,7 +116,13 @@ fun DisplayAppsList(appList: List<AppInfo>) {
 
     ) {
         repeat(appList.size) {
-            Row(modifier = Modifier.padding(0.dp, 4.dp)) {
+            Row(
+                modifier = Modifier
+                    .padding(0.dp, 4.dp)
+                    .clickable {
+                        launchApp(context = context, appInfo = appList[it])
+                    },
+            ) {
                 if (appList[it].icon != null) {
                     val appIconBitmap = appList[it].icon?.toBitmap()?.asImageBitmap()
                     if (appIconBitmap != null) {
@@ -123,13 +137,8 @@ fun DisplayAppsList(appList: List<AppInfo>) {
                 }
                 Text (
                     appList[it].appName,
-                    modifier = Modifier
-                        .padding(0.dp, 8.dp)
-                        .clickable {
-                            launchApp(context = context, appInfo = appList[it])
-                        }
-                    ,
-                    style = TextStyle(fontSize = 24.sp, color = Color.White)
+                    modifier = Modifier.padding(0.dp, 8.dp),
+                    style = Typography.titleLarge.merge(color= Color.White)
                 )
             }
 
