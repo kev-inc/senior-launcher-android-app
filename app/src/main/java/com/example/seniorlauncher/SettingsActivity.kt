@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.Surface
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -36,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import com.example.seniorlauncher.ui.theme.Typography
 
 
 class SettingsActivity : FragmentActivity() {
@@ -54,11 +57,10 @@ class SettingsActivity : FragmentActivity() {
 fun SettingsScreen() {
     val activity = LocalContext.current as? Activity // Get the current Activity
 
-    var darkMode by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
     var selectedLanguage by remember { mutableStateOf("English") }
-    var username by remember { mutableStateOf("") }
 
-    val languages = listOf("English", "Spanish", "French")
+    val languages = listOf("English", "Chinese", "Malay", "Tamil")
 
     Scaffold(
         topBar = {
@@ -75,49 +77,36 @@ fun SettingsScreen() {
             )
         }
     ) { innerPadding ->
-        Surface(
+        Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
-            color = Color.White
         ) {
             Column(modifier = Modifier.padding(16.dp), ) {
 
-                // Dark Mode Switch
-                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    Text(text = "Enable Dark Mode", modifier = Modifier.weight(1f))
-                    Switch(checked = darkMode, onCheckedChange = { darkMode = it })
-                }
+                Text("General", style = Typography.titleMedium, modifier = Modifier.padding(8.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                ListItem(
+                    headlineContent = { Text("Language") },
+                    supportingContent = { Text(selectedLanguage) },
+                    modifier = Modifier.clickable { expanded = true }
+                )
 
-                // Language Selection Dropdown
-                ExposedDropdownMenuBox(expanded = false, onExpandedChange = {}) {
-                    OutlinedTextField(
-                        value = selectedLanguage,
-                        onValueChange = {},
-                        label = { Text("Select Language") },
-                        readOnly = true
-                    )
-                    DropdownMenu(expanded = false, onDismissRequest = {}) {
-                        languages.forEach { language ->
-                            DropdownMenuItem(text = { Text(language) }, onClick = { selectedLanguage = language })
-                        }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    languages.forEach { language ->
+                        DropdownMenuItem(
+                            text = { Text(language) },
+                            onClick = {
+                                selectedLanguage = language
+                                expanded = false
+                            }
+                        )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Username Input
-                OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text("Username") },
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         }
     }
-
-
 }

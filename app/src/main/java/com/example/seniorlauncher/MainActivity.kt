@@ -5,32 +5,27 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.seniorlauncher.ui.theme.SeniorLauncherTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Surface
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.toBitmap
@@ -60,7 +55,14 @@ class MainActivity : ComponentActivity() {
                         .systemBarsPadding(),
                     color = Color.Transparent
                 ) {
-                    DisplayAppsList(appList)
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(8.dp)
+                    ) {
+                        items(items=appList) { item ->
+                            AppRow(appInfo = item)
+                        }
+                    }
                 }
             }
         }
@@ -87,12 +89,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-fun launchSettings(context: Context) {
-    val settingsIntent = Intent(context, SettingsActivity::class.java)
-    context.startActivity(settingsIntent)
-}
-
 fun launchApp(context: Context, appInfo: AppInfo) {
     if (appInfo.className == "SettingsActivity") {
         val settingsIntent = Intent(context, SettingsActivity::class.java)
@@ -107,57 +103,30 @@ fun launchApp(context: Context, appInfo: AppInfo) {
 }
 
 @Composable
-fun DisplayAppsList(appList: List<AppInfo>) {
+fun AppRow(appInfo: AppInfo) {
     val context = LocalContext.current
-    Column(
+    Row(
         modifier = Modifier
-            .padding(8.dp)
-            .verticalScroll(rememberScrollState())
-
+            .padding(0.dp, 4.dp)
+            .clickable {
+                launchApp(context = context, appInfo = appInfo)
+            },
     ) {
-        repeat(appList.size) {
-            Row(
-                modifier = Modifier
-                    .padding(0.dp, 4.dp)
-                    .clickable {
-                        launchApp(context = context, appInfo = appList[it])
-                    },
-            ) {
-                if (appList[it].icon != null) {
-                    val appIconBitmap = appList[it].icon?.toBitmap()?.asImageBitmap()
-                    if (appIconBitmap != null) {
-                        Image(
-                            bitmap = appIconBitmap,
-                            contentDescription = appList[it].appName,
-                            modifier = Modifier.size(48.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-
-                }
-                Text (
-                    appList[it].appName,
-                    modifier = Modifier.padding(0.dp, 8.dp),
-                    style = Typography.titleLarge.merge(color= Color.White)
+        if (appInfo.icon != null) {
+            val appIconBitmap = appInfo.icon?.toBitmap()?.asImageBitmap()
+            if (appIconBitmap != null) {
+                Image(
+                    bitmap = appIconBitmap,
+                    contentDescription = appInfo.appName,
+                    modifier = Modifier.size(48.dp)
                 )
+                Spacer(modifier = Modifier.width(8.dp))
             }
-
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SeniorLauncherTheme {
-        Greeting("Android")
+        Text (
+            appInfo.appName,
+            modifier = Modifier.padding(0.dp, 8.dp),
+            style = Typography.titleLarge.merge(color= Color.White)
+        )
     }
 }
